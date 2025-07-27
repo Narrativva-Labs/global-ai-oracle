@@ -6,9 +6,14 @@ import '../services/supabase_service.dart';
 import 'prediction_graph.dart';
 
 class MetricCard extends StatefulWidget {
-  final String metric;
+  final String metric; // short_name, pro načítání z DB
+  final String label;  // long_name, pro zobrazení uživateli
 
-  const MetricCard({super.key, required this.metric});
+  const MetricCard({
+    super.key,
+    required this.metric,
+    required this.label,
+  });
 
   @override
   State<MetricCard> createState() => _MetricCardState();
@@ -24,7 +29,7 @@ class _MetricCardState extends State<MetricCard> {
   }
 
   Future<void> _loadData() async {
-    final data = await loadHistoricalData(widget.metric);
+    final data = await loadHistoricalData(widget.metric); // pořád předáváš short_name
     setState(() {
       _data = data;
     });
@@ -41,7 +46,10 @@ class _MetricCardState extends State<MetricCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.metric, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              widget.label, // Tohle je teď user-friendly popisek
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
             const SizedBox(height: 8),
             AspectRatio(
               aspectRatio: 1.2,

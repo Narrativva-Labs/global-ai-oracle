@@ -1,5 +1,6 @@
 // lib/dashboard_page.dart
-// Manages the state and logic for the main dashboard screen, including loading and displaying metrics and graphs. This file loads historical data for trends but does not handle prediction generation, which is done automatically in the backend.
+// Manages the state and logic for the main dashboard screen, including loading and displaying metrics and graphs.
+// This file loads historical data for trends but does not handle prediction generation, which is done automatically in the backend.
 
 import 'package:flutter/material.dart';
 import 'widgets/metric_card.dart';
@@ -12,17 +13,31 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  // Seznam short_name hodnot přesně podle tvé databáze
   final List<String> _metrics = const [
-    'Probability of Nuclear Weapons Use',
-    'Probability of Third World War Start',
-    'Probability of Global Financial Crisis',
-    'Probability of AGI Creation',
-    'Probability of WHO Global Pandemic Declaration',
-    'Probability of Alien Civilizations Discovery',
-    'Probability of Cancer Cure Discovery',
-    'Probability of Physics Law Breakthrough',
-    'Probability of Robot Rebellion Against Humanity',
+    'Nukes',
+    'WW3',
+    'FinanceCrisis',
+    'AGI',
+    'Pandemic',
+    'Aliens',
+    'CancerCure',
+    'Physics',
+    'RobotRebellion',
   ];
+
+  // Mapování short_name → long_name
+  final Map<String, String> _metricLabels = const {
+    'Nukes': 'Probability of Nuclear Weapons Use',
+    'WW3': 'Probability of Third World War Start',
+    'FinanceCrisis': 'Probability of Global Financial Crisis',
+    'AGI': 'Probability of AGI Creation',
+    'Pandemic': 'Probability of WHO Global Pandemic Declaration',
+    'Aliens': 'Probability of Alien Civilizations Discovery',
+    'CancerCure': 'Probability of Cancer Cure Discovery',
+    'Physics': 'Probability of Physics Law Breakthrough',
+    'RobotRebellion': 'Probability of Robot Rebellion Against Humanity',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +58,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisCount: 3,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  // Slightly taller than wide to fit card contents
-                  childAspectRatio: 0.59,
+                  childAspectRatio: 1,
                 ),
                 itemCount: _metrics.length,
                 itemBuilder: (context, index) {
-                  return MetricCard(metric: _metrics[index]);
+                  final shortName = _metrics[index];
+                  final label = _metricLabels[shortName] ?? shortName;
+                  return MetricCard(
+                    metric: shortName,
+                    label: label,
+                  );
                 },
               ),
             )
@@ -56,7 +75,12 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.all(16.0),
               itemCount: _metrics.length,
               itemBuilder: (context, index) {
-                return MetricCard(metric: _metrics[index]);
+                final shortName = _metrics[index];
+                final label = _metricLabels[shortName] ?? shortName;
+                return MetricCard(
+                  metric: shortName,
+                  label: label,
+                );
               },
             ),
     );
