@@ -1,6 +1,3 @@
-// lib/services/supabase_service.dart
-// Handles storing and retrieving historical prediction data from Supabase. This service is shared between the app (for loading data) and the backend (for storing predictions during automatic execution).
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
@@ -20,33 +17,69 @@ class PredictionData {
   });
 }
 
-Future<void> storePredictions(String metric, Map<String, double> predictions) async {
+// Najdi ID metriky podle short_name (nebo podle name modelu)
+Future<int?> getMetricId(String shortName) async {
+  final supabase = Supabase.instance.client;
+  final data = await supabase
+      .from('metrics')
+      .select('id')
+      .eq('short_name', shortName)
+      .maybeSingle();
+  return data?['id'];
+}
+
+Future<int?> getModelId(String modelName) async {
+  final supabase = Supabase.instance.client;
+  final data = await supabase
+      .from('models')
+      .select('id')
+      .eq('name', modelName)
+      .maybeSingle();
+  return data?['id'];
+}
+
+// Uložit predikce
+Future<void> storePredictions(String metricShortName, Map<String, double> predictions) async {
   final supabase = Supabase.instance.client;
   final today = DateTime.now().toIso8601String().split('T')[0];
 
+  final metricId = await getMetricId(metricShortName);
+  if (metricId == null) throw Exception('Metric $metricShortName not found');
+
   for (final entry in predictions.entries) {
+    final modelId = await getModelId(entry.key);
+    if (modelId == null) throw Exception('Model ${entry.key} not found');
+
     await supabase.from('predictions').insert({
-      'metric': metric,
-      'model': entry.key,
+      'metric_id': metricId,
+      'model_id': modelId,
       'probability': entry.value,
       'date': today,
     });
   }
 }
 
-Future<List<PredictionData>> loadHistoricalData(String metric) async {
+// Načíst historická data pro jednu metriku
+Future<List<PredictionData>> loadHistoricalData(String metricShortName) async {
   final supabase = Supabase.instance.client;
 
+  // Získat id metriky
+  final metricId = await getMetricId(metricShortName);
+  if (metricId == null) return [];
+
+  // Join na models a metrics, vyfiltruj podle metric_id
   final response = await supabase
       .from('predictions')
-      .select()
-      .eq('metric', metric)
+      .select('date, probability, metrics(short_name), models(name)')
+      .eq('metric_id', metricId)
       .order('date', ascending: true);
 
-  return response.map((data) => PredictionData(
-        date: DateTime.parse(data['date']),
-        metric: data['metric'],
-        model: data['model'],
-        probability: data['probability'],
-      )).toList();
+  return (response as List)
+      .map((data) => PredictionData(
+            date: DateTime.parse(data['date']),
+            metric: data['metrics']['short_name'] ?? '',
+            model: data['models']['name'] ?? '',
+            probability: (data['probability'] as num).toDouble(),
+          ))
+      .toList();
 }
