@@ -43,15 +43,17 @@ class _MetricCardState extends State<MetricCard> {
           children: [
             Text(widget.metric, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 8),
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
-                  colors: [Colors.black, Colors.grey[800]!],
+            AspectRatio(
+              aspectRatio: 1.2,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [Colors.black, Colors.grey[800]!],
+                  ),
                 ),
+                child: PredictionGraph(data: _data),
               ),
-              child: PredictionGraph(data: _data),
             ),
           ],
         ),
