@@ -43,8 +43,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisCount: 3,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  // Use a square aspect ratio so cards scale with width
-                  childAspectRatio: 1,
+                  // Slightly taller than wide to fit card contents
+                  childAspectRatio: 0.59,
                 ),
                 itemCount: _metrics.length,
                 itemBuilder: (context, index) {
