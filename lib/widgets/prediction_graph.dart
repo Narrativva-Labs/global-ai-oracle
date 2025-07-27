@@ -16,13 +16,13 @@ class PredictionGraph extends StatelessWidget {
       return const Center(child: Text('No data available', style: TextStyle(color: Colors.white70)));
     }
 
-    // Group data by model for multi-line graph
+    // Group data by model for multi-line graph and map X axis to days
     Map<String, List<FlSpot>> modelData = {};
+    final startDate = data.first.date;
     for (var entry in data) {
       modelData.putIfAbsent(entry.model, () => []);
-      modelData[entry.model]!.add(
-        FlSpot(data.indexOf(entry).toDouble(), entry.probability),
-      );
+      final days = entry.date.difference(startDate).inDays.toDouble();
+      modelData[entry.model]!.add(FlSpot(days, entry.probability));
     }
 
     return LineChart(
@@ -40,13 +40,15 @@ class PredictionGraph extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              interval: 5,
               reservedSize: 32,
               getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index >= 0 && index < data.length) {
-                  return Text(data[index].date.toString().substring(0, 10), style: const TextStyle(color: Colors.white70, fontSize: 10));
-                }
-                return const Text('');
+                if (value < 0) return const Text('');
+                final date = startDate.add(Duration(days: value.toInt()));
+                return Text(
+                  date.toString().substring(5, 10),
+                  style: const TextStyle(color: Colors.white70, fontSize: 10),
+                );
               },
             ),
           ),
@@ -62,7 +64,7 @@ class PredictionGraph extends StatelessWidget {
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
-        maxX: data.length - 1.toDouble(),
+        maxX: data.last.date.difference(startDate).inDays.toDouble(),
         minY: 0,
         maxY: 100,
         lineBarsData: modelData.entries.map((entry) {
