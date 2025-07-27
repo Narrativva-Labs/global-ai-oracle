@@ -67,11 +67,16 @@ Future<List<PredictionData>> loadHistoricalData(String metricShortName) async {
   final metricId = await getMetricId(metricShortName);
   if (metricId == null) return [];
 
-  // Join na models a metrics, vyfiltruj podle metric_id
+  // Datum 30 dní zpět
+  final thirtyDaysAgo =
+      DateTime.now().subtract(const Duration(days: 30)).toIso8601String().split('T')[0];
+
+  // Join na models a metrics, vyfiltruj podle metric_id a posledních 30 dní
   final response = await supabase
       .from('predictions')
       .select('date, probability, metrics(short_name), models(name)')
       .eq('metric_id', metricId)
+      .gte('date', thirtyDaysAgo)
       .order('date', ascending: true);
 
   return (response as List)
