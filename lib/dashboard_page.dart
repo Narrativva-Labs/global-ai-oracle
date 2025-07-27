@@ -13,15 +13,15 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final List<String> _metrics = const [
-    'Probability of Nuclear Weapons Use',
-    'Probability of Third World War Start',
-    'Probability of Global Financial Crisis',
-    'Probability of AGI Creation',
-    'Probability of WHO Global Pandemic Declaration',
-    'Probability of Alien Civilizations Discovery',
-    'Probability of Cancer Cure Discovery',
-    'Probability of Physics Law Breakthrough',
-    'Probability of Robot Rebellion Against Humanity',
+    'Nukes',
+    'WW3',
+    'FinanceCrisis',
+    'AGI',
+    'Pandemic',
+    'Aliens',
+    'CancerCure',
+    'Physics',
+    'RobotRebellion',
   ];
 
   @override
